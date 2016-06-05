@@ -13,6 +13,8 @@
 
       PRs welcome: https://github.com/rossdakin/ismetroonfiretoday/
 
+      Powered by data from https://www.ismetroonfire.com (thanks!)
+
     -->
     <title>Is Metro on fire today?</title>
     <meta name="description" content="WMATA — please prioritize Metrorail safety.">
@@ -67,8 +69,38 @@
   </head>
   <body>
     <main>
-      <a href="http://www.wmata.com/" id="answer">no</a>
+      <a href="http://www.wmata.com/" id="answer"></a>
     </main>
+    <script>
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', encodeURI('https://www.ismetroonfire.com/fireapi'));
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var answer = document.getElementById('answer');
+          var lines = [];
+          var response = JSON.parse(xhr.responseText);
+
+          // debug
+          // response = JSON.parse('{"counts":{"red":false,"orange":true,"yellow":false,"green":true,"blue":false,"silver":false},"message":"Not Yet!"}');
+
+          for (var key in response.counts) {
+            if (response.counts[key]) {
+              lines.push(key);
+            }
+          }
+
+          if (lines.length) {
+            answer.innerText = 'yes (' + lines.join(', ') + ')';
+          } else {
+            answer.innerText = 'no';
+          }
+        }
+        else {
+          alert('Request failed. Returned status of ' + xhr.status);
+        }
+      };
+      xhr.send();
+    </script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
